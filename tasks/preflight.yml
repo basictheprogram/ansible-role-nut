@@ -1,0 +1,42 @@
+---
+
+- name: Assert minimum Ansible version
+  ansible.builtin.assert:
+    that:
+      - ansible_version.full is version('2.20', '>=')
+    fail_msg: >
+      ansible-role-nut requires Ansible >= 2.20.
+      Running {{ ansible_version.full }}.
+    quiet: true
+
+- name: Assert required fields on each nut_ups entry
+  ansible.builtin.assert:
+    that:
+      - nut_ups_item.name is defined and nut_ups_item.name | length > 0
+      - nut_ups_item.driver is defined and nut_ups_item.driver | length > 0
+      - nut_ups_item.device is defined and nut_ups_item.device | length > 0
+    fail_msg: >
+      nut_ups entry is missing required fields.
+      Every entry must have name, driver, and device defined and non-empty.
+      Offending entry: {{ nut_ups_item }}
+    quiet: true
+  loop: "{{ nut_ups }}"
+  loop_control:
+    loop_var: nut_ups_item
+    label: "{{ nut_ups_item.name | default('(unnamed)') }}"
+
+- name: Assert required fields on each nut_users entry
+  ansible.builtin.assert:
+    that:
+      - nut_users_item.name is defined and nut_users_item.name | length > 0
+      - nut_users_item.password is defined and nut_users_item.password | length > 0
+    fail_msg: >
+      nut_users entry is missing required fields.
+      Every entry must have name and password defined and non-empty.
+      Offending entry index: {{ nut_users_item.name | default('(unnamed)') }}
+    quiet: true
+  loop: "{{ nut_users }}"
+  loop_control:
+    loop_var: nut_users_item
+    label: "{{ nut_users_item.name | default('(unnamed)') }}"
+  no_log: true

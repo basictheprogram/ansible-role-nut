@@ -1,7 +1,36 @@
 Ansible Role: NUT
 =================
-Installs and configures [NUT](http://networkupstools.org/) (Nework UPS
-tools) on Debian, ArchLinux and RedHat based systems.
+
+[![CI](https://github.com/basictheprogram/ansible-role-nut/actions/workflows/ci.yml/badge.svg)](https://github.com/basictheprogram/ansible-role-nut/actions/workflows/ci.yml)
+[![Ansible Galaxy](https://img.shields.io/badge/galaxy-realtime.nut-blue?logo=ansible)](https://galaxy.ansible.com/ui/standalone/roles/realtime/nut/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/basictheprogram/ansible-role-nut/blob/master/.pre-commit-config.yaml)
+
+> **Fork notice** — This is a fork of
+> [ntd/ansible-role-nut](https://github.com/ntd/ansible-role-nut) by
+> Nicola Fontana. Bugs, feature requests, and pull requests for this fork
+> should be submitted to
+> **[basictheprogram/ansible-role-nut](https://github.com/basictheprogram/ansible-role-nut/issues)**.
+> Issues that reproduce against the upstream role may also be reported at
+> [ntd/ansible-role-nut](https://github.com/ntd/ansible-role-nut/issues).
+
+Installs and configures [NUT](http://networkupstools.org/) (Network UPS
+Tools) on Debian, Arch Linux, and RedHat-based systems.
+
+Requirements
+------------
+
+Ansible core >= 2.20.
+
+Supported Platforms
+-------------------
+
+| OS Family  | Versions                                    |
+|------------|---------------------------------------------|
+| Ubuntu     | 22.04 Jammy, 24.04 Noble, 26.04 Resolute    |
+| Debian     | 12 Bookworm, 13 Trixie                      |
+| EL         | 9                                           |
+| Arch Linux | rolling (any)                               |
 
 Role Variables
 --------------
@@ -13,36 +42,45 @@ Available variables are listed below, along with default values (see
 
 | Variable | Default Value | Description |
 |----------|---------------|-------------|
-| `nut_managed_config` | `true` | If this is set to false, none of the following options will have any effect, that is any and all changes under `/etc/nut/` will be your responsibility. This can be desirable if you have complex configurations. |
-| `nut_enable_service` | `true` | Whether to start the NUT service after configuration |
-| `nut_mode` | `standalone` | NUT mode setting (see `man 5 nut.conf` MODE directive) |
-| `nut_extra` | empty | Additional configuration options directly placed in `nut.conf`. This code is intended to be sourced by shell scripts: you MUST NOT use spaces around the equal sign! |
-| `nut_services` | `[nut-server.service, nut-monitor.service, nut.target]` | List of NUT services, excluding driver-related ones, to enable |
-| `nut_users` | See example below | List of users for NUT configuration (replaces legacy user variables). See below for detailed schema. |
-| `nut_ups` | See example below | List of UPS configurations with name, driver, device, description |
-| `nut_ups_extra` | `maxretry = 3` | Additional configuration options directly placed in `ups.conf` |
-| `nut_upsd_extra` | Multi-line config | Additional upsd daemon configuration directly placed in `upsd.conf` |
-| `nut_maxretry` | `3` | **DEPRECATED** - Use `nut_ups_extra` instead |
+| `nut_managed_config` | `true` | If false, no configuration files under `/etc/nut/` are written — you manage them yourself. |
+| `nut_enable_service` | `true` | Whether to start and enable the NUT services after configuration. |
+| `nut_mode` | `standalone` | NUT mode setting (see `man 5 nut.conf` MODE directive). |
+| `nut_extra` | empty | Raw text appended verbatim to `nut.conf`. Must not use spaces around `=` (shell-sourced). |
+| `nut_services` | `[nut-server.service, nut-monitor.service, nut.target]` | List of non-driver NUT service units to enable. |
+| `nut_users` | See example below | List of users written into `upsd.users`. The first entry is used for upsmon unless `nut_upsmon_*` variables are set explicitly. |
+| `nut_ups` | `[]` | List of UPS device definitions written into `ups.conf`. |
+| `nut_ups_extra` | `maxretry = 3` | Raw text appended verbatim to `ups.conf`. |
+| `nut_upsd_extra` | Multi-line config | Raw text appended verbatim to `upsd.conf`. |
+| `nut_maxretry` | `3` | **DEPRECATED** — Use `nut_ups_extra` instead. |
 
 ### UPSMON Configuration
 
-This settings are primarily used for the **local** `upsmon.conf` configuration.
+These settings are primarily used for the local `upsmon.conf` configuration.
 
 | Variable | Default Value | Description |
 |----------|---------------|-------------|
-| `nut_host` | `localhost` | Hostname of the NUT server to monitor |
-| `nut_powervalue` | `1` | Power value for MONITOR directive (see `man 5 upsmon.conf`) |
-| `nut_user` | empty | **DEPRECATED** - Legacy user configuration, migrate to `nut_users` |
-| `nut_password` | empty | **DEPRECATED** - Legacy password configuration, migrate to `nut_users` |
-| `nut_role` | empty | **DEPRECATED** - Legacy role configuration, migrate to `nut_users` |
-| `nut_upsmon_user` | Auto-derived | Use this variable to override how the upsmon **username** is derived. If you override, make sure to create the required user yourself. |
-| `nut_upsmon_password` | Auto-derived | Use this variable to override how the upsmon users **password** is derived. If you override, make sure to create the required user yourself. |
-| `nut_upsmon_role` | Auto-derived | Use this variable to override how the upsmon users **role** is derived. If you override, make sure to create the required user yourself. |
-| `nut_upsmon_extra` | Multi-line config | Additional upsmon configuratio directly placed in `upsmon.conf` |
-| `nut_upsmon_notifycmd` | undefined | Path for NOTIFYCMD configuration |
-| `nut_upsmon_notifycmd_content` | undefined | Content to copy to the notifycmd path |
+| `nut_host` | `localhost` | Hostname of the NUT server written into the MONITOR directive. |
+| `nut_powervalue` | `1` | Power value for the MONITOR directive (see `man 5 upsmon.conf`). |
+| `nut_upsmon_user` | Auto-derived | Override the upsmon monitor username. Defaults to `nut_user` or `nut_users[0].name`. |
+| `nut_upsmon_password` | Auto-derived | Override the upsmon monitor password. Defaults to `nut_password` or `nut_users[0].password`. |
+| `nut_upsmon_role` | Auto-derived | Override the upsmon type field. Defaults to `nut_role`, `nut_users[0].role`, or `master`. |
+| `nut_upsmon_extra` | Multi-line config | Raw text appended verbatim to `upsmon.conf`. |
+| `nut_upsmon_notifycmd` | undefined | Path where the NOTIFYCMD script is installed. |
+| `nut_upsmon_notifycmd_content` | undefined | Content written to the `nut_upsmon_notifycmd` path. |
+| `nut_user` | empty | **DEPRECATED** — Legacy upsmon username. Migrate to `nut_users`. |
+| `nut_password` | empty | **DEPRECATED** — Legacy upsmon password. Migrate to `nut_users`. |
+| `nut_role` | empty | **DEPRECATED** — Legacy upsmon role. Migrate to `nut_users`. |
 
-Refer to the Users Definition section below for details on how to configure users.
+### OS-specific variables (vars/)
+
+The following variables are loaded from `vars/<OsFamily>.yml` via
+`include_vars` and are **not** user-overridable in the normal sense —
+they reflect package names and paths that differ per distribution.
+
+| Variable | Debian | RedHat | Arch Linux |
+|----------|--------|--------|------------|
+| `__nut_packages` | `nut-client`, `nut-server`, `nut-monitor` | `nut-client`, `nut` | `nut` |
+| `__nut_config_dir` | `/etc/nut/` | `/etc/nut/` | `/etc/ups/` |
 
 ### UPS Definition
 
@@ -57,53 +95,25 @@ nut_ups:
       retrydelay = 1
 ```
 
-`name` is an arbitrary string that must identify univocally the UPS.
+`name` is an arbitrary string that must uniquely identify the UPS.
 
 `driver` depends on your hardware and must be one of the [available NUT
-driver](http://networkupstools.org/stable-hcl.html). Be sure the NUT
-version installed on your server has that specific driver available.
+drivers](http://networkupstools.org/stable-hcl.html).
 
-`device` is device where the UPS is listening (typically an USB port or
-a serial device).
+`device` is the path where the UPS is connected (typically a USB or serial
+device).
 
-`description` is optional and is an arbitrary string used for debugging
-and reporting purposes.
+`description` is optional and used for debugging and reporting.
 
-`extra` is an optional multiline text to be inserted verbatim in the
-relevant UPS section.
-
-Other less used variables, all of them optionals:
-
-    nut_mode: standalone # `man 5 nut.conf`     MODE directive
-    nut_powervalue: 1    # `man 5 upsmon.conf`  MONITOR directive, powervalue field
-    nut_role: master     # `man 5 upsmon.conf`  MONITOR directive, type field
-    nut_services:        # Name of non-driver services to enable
-      - nut-server.service
-      - nut-monitor.service
-      - nut.target
+`extra` is optional multiline text inserted verbatim into the UPS section.
 
 ### Users Definition
-
-The NUT users are configured using the `nut_users` variable, see
-nested scheme below. You can optionally specify extra configuration
-snippets that are added to each user.
-
-The legacy variables `nut_user`, `nut_password` and `nut_role` are now
-**deprecated**. For now, the behaviour is as follows:
-
-- If `nut_user` is defined, the legacy variables will be added to `upsd.users` and will be used in `upsmon.conf`
-- If `nut_user` is not defined, the first entry of `nut_users` will be used in `upsmon.conf`
-
-This default behaviour can be overriden by explicitely setting
-the `nut_upsmon_*` variables. Note that in this case you are still
-responsible to create the same user in `upsd.users` (for example by
-adding it to `nut_users`): the role does not do that automatically.
 
 ```yaml
 nut_users:
   - name: nutuser1
     password: password1
-    role: primary # DEPRECATED: use extra instead
+    role: primary  # DEPRECATED: use extra instead
   - name: nutuser2
     password: password2
     extra: |
@@ -112,23 +122,32 @@ nut_users:
       actions = fsd
 ```
 
-The `role` of the first user will be used as `type` field in the
-`MONITOR` directive of `upsmon.conf`. This is deprecated: it is better
-to explicitely specify it in ` nut_upsmon_role` or let the default value
-(`master`, now mapping to `primary`).
+The legacy variables `nut_user`, `nut_password`, and `nut_role` are
+**deprecated**. If `nut_user` is defined, the legacy variables are added
+to `upsd.users` and used in `upsmon.conf`. Otherwise the first entry of
+`nut_users` is used.
 
-```yaml
-nut_users:
-  - name: masteruser
-    password: masterpassword
-  - name: slaveuser
-    password: slavepassword
-    extra: |
-      upsmon slave
-```
+This default behaviour can be overridden by explicitly setting the
+`nut_upsmon_*` variables. In that case you are responsible for creating
+the matching user in `nut_users`.
 
-For a detailed description on user attributes that can be set,
-please refer to the [`upsd.users` documentation](https://networkupstools.org/docs/man/upsd.users.html).
+Task Flow
+---------
+
+1. **Include OS-specific variables** — loads `vars/<OsFamily>.yml` for
+   package names and config directory path.
+2. **Preflight assertions** — validates Ansible version (>= 2.20),
+   required fields on each `nut_ups` entry (`name`, `driver`, `device`),
+   and required fields on each `nut_users` entry (`name`, `password`).
+3. **Install packages** — installs `__nut_packages` for the detected OS.
+4. **Template configuration files** — writes `nut.conf`, and conditionally
+   `ups.conf`, `upsd.conf`, `upsd.users`, `upsmon.conf` based on which
+   services are enabled.
+5. **Install notifycmd script** — copies `nut_upsmon_notifycmd_content`
+   to `nut_upsmon_notifycmd` when the variable is defined.
+6. **Driver services** — on handler trigger, enables per-device driver
+   services (modern enumerator → per-device → legacy fallback).
+7. **NUT services** — on handler trigger, enables and restarts `nut_services`.
 
 Example Playbook
 ----------------
@@ -136,15 +155,15 @@ Example Playbook
 ```yaml
 - hosts: all
   roles:
-  - role: ntd.nut
-    nut_ups:
-      - name: riello
-        driver: riello_usb
-        device: /dev/ups
-        description: iPlug 800
+    - role: ntd.nut
+      nut_ups:
+        - name: riello
+          driver: riello_usb
+          device: /dev/ups
+          description: iPlug 800
 ```
 
-For many more examples, please see `tests/test.yml`.
+For more examples, see `tests/test.yml`.
 
 License
 -------
@@ -154,4 +173,10 @@ MIT
 Author Information
 ------------------
 
-This role was created in 2016 by Nicola Fontana (ntd@entidi.it).
+The original role was created in 2016 by Nicola Fontana (ntd@entidi.it)
+and is maintained upstream at
+[ntd/ansible-role-nut](https://github.com/ntd/ansible-role-nut).
+
+This fork is maintained at
+[basictheprogram/ansible-role-nut](https://github.com/basictheprogram/ansible-role-nut).
+Please open issues and pull requests there.

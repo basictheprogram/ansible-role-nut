@@ -3,6 +3,10 @@
 - name: "Include OS-specific variables."
   ansible.builtin.include_vars: "{{ ansible_facts['os_family'] }}.yml"
 
+- name: Run preflight assertions
+  ansible.builtin.include_tasks: preflight.yml
+  tags: nut
+
 - name: "Define nut_packages."
   ansible.builtin.set_fact:
     nut_packages: "{{ __nut_packages | list }}"

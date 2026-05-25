@@ -1,20 +1,49 @@
 ---
+dependencies: []
+
 galaxy_info:
-  author: Nicola Fontana
-  namespace: ntd
+  author: "Bob Tanner"
+  namespace: realtime
   role_name: nut
-  description: Network UPS Tools (nut) for Debian, ArchLinux and RedHat.
-  company: eNTiDi software
+  description: >
+    Fork of https://github.com/ntd/ansible-role-nut by Nicola Fontana.
+    Installs and configures Network UPS Tools (NUT) on Debian, Arch Linux,
+    and RedHat-based systems. Manages all NUT configuration files
+    (nut.conf, ups.conf, upsd.conf, upsd.users, upsmon.conf), installs
+    OS-appropriate packages, and handles driver and service lifecycle across
+    modern and legacy NUT versions.
+  company: "Real Time Enterprises, Inc."
+  issue_tracker_url: https://github.com/basictheprogram/ansible-role-nut/issues
   license: MIT
-  min_ansible_version: "2.5"
+  min_ansible_version: "2.20"
+
+  platforms:
+    - name: Ubuntu
+      versions:
+        - jammy
+        - noble
+        - resolute
+    - name: Debian
+      versions:
+        - bookworm
+        - trixie
+    - name: EL
+      versions:
+        - "9"
+    - name: ArchLinux
+      versions:
+        - all
+
   galaxy_tags:
     - ups
+    - nut
     - battery
     - shutdown
+    - power
     - hardware
-    - nut
+    - monitoring
     - debian
+    - ubuntu
     - redhat
     - archlinux
-
-dependencies: []
+    - network

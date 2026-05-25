@@ -1,0 +1,210 @@
+---
+argument_specs:
+  main:
+    short_description: Install and configure Network UPS Tools (NUT)
+    description: >
+      Installs and configures NUT on Debian, Arch Linux, and RedHat-based
+      systems. Manages nut.conf, ups.conf, upsd.conf, upsd.users, and
+      upsmon.conf from role variables. Handles driver and service lifecycle.
+    author: Nicola Fontana
+    options:
+      nut_enable_service:
+        type: bool
+        default: true
+        description: >
+          Whether to start (and enable) the NUT services after configuration.
+          Set to false to manage service state externally.
+
+      nut_managed_config:
+        type: bool
+        default: true
+        description: >
+          When true the role writes all /etc/nut/* configuration files from
+          templates. Set to false to skip configuration file management
+          entirely and handle /etc/nut/* yourself.
+
+      nut_mode:
+        type: str
+        default: standalone
+        description: >
+          NUT MODE directive written into nut.conf. Common values are
+          standalone, netserver, and netclient. See man 5 nut.conf.
+
+      nut_extra:
+        type: str
+        default: ""
+        description: >
+          Raw text appended verbatim to nut.conf. This content is sourced
+          by shell scripts — do NOT use spaces around the equal sign.
+
+      nut_host:
+        type: str
+        default: localhost
+        description: >
+          Hostname of the NUT server written into the MONITOR directive
+          of upsmon.conf.
+
+      nut_powervalue:
+        type: int
+        default: 1
+        description: >
+          Power value for the MONITOR directive in upsmon.conf.
+          See man 5 upsmon.conf.
+
+      nut_services:
+        type: list
+        elements: str
+        default:
+          - nut-server.service
+          - nut-monitor.service
+          - nut.target
+        description: >
+          List of non-driver NUT systemd service units to enable and restart.
+          Driver-related services are managed separately.
+
+      nut_users:
+        type: list
+        elements: dict
+        default:
+          - name: monitor
+            password: Whatever...
+            role: primary
+        description: >
+          List of users written into upsd.users. The first entry is used
+          as the upsmon monitor user unless nut_upsmon_user is set
+          explicitly. Each entry supports the keys below.
+        options:
+          name:
+            type: str
+            required: true
+            description: Username written into upsd.users.
+          password:
+            type: str
+            required: true
+            description: >
+              Plain-text password for this NUT user. Keep this in an
+              Ansible Vault file; never commit it in clear text.
+          role:
+            type: str
+            required: false
+            description: >
+              Deprecated — use the extra field instead. If set, written
+              as the upsmon type field.
+          extra:
+            type: str
+            required: false
+            description: >
+              Raw text appended verbatim to this user's upsd.users stanza.
+              Use for role =, actions =, instcmds =, etc.
+
+      nut_upsmon_user:
+        type: str
+        description: >
+          Override the username used in the upsmon.conf MONITOR directive.
+          Defaults to nut_user (if set) or nut_users[0].name.
+
+      nut_upsmon_password:
+        type: str
+        description: >
+          Override the password used in the upsmon.conf MONITOR directive.
+          Defaults to nut_password (if set) or nut_users[0].password.
+
+      nut_upsmon_role:
+        type: str
+        description: >
+          Override the type field in the upsmon.conf MONITOR directive.
+          Defaults to nut_role (if set), nut_users[0].role, or master.
+
+      nut_upsmon_extra:
+        type: str
+        description: >
+          Raw text appended verbatim to upsmon.conf after the MONITOR
+          directive. Defaults to a standard set of MINSUPPLIES, SHUTDOWNCMD,
+          poll frequencies, and timing values.
+
+      nut_upsmon_notifycmd:
+        type: str
+        required: false
+        description: >
+          Filesystem path where the NOTIFYCMD script will be installed.
+          Must be set when nut_upsmon_notifycmd_content is defined.
+
+      nut_upsmon_notifycmd_content:
+        type: str
+        required: false
+        description: >
+          Content of the NOTIFYCMD script. When defined, the file at
+          nut_upsmon_notifycmd is created with this content (mode 0770).
+
+      nut_ups:
+        type: list
+        elements: dict
+        default: []
+        description: >
+          List of UPS device definitions written into ups.conf. Each entry
+          describes one UPS attached to this host.
+        options:
+          name:
+            type: str
+            required: true
+            description: >
+              Unique identifier for this UPS. Used in the MONITOR directive
+              and service unit names.
+          driver:
+            type: str
+            required: true
+            description: >
+              NUT driver name. Must match a driver supported by the installed
+              NUT version. See networkupstools.org/stable-hcl.html.
+          device:
+            type: str
+            required: true
+            description: >
+              Device path (e.g. /dev/ttyUSB0 or /dev/ups) where the UPS
+              is connected.
+          description:
+            type: str
+            required: false
+            description: Human-readable string for debugging and reporting.
+          extra:
+            type: str
+            required: false
+            description: >
+              Raw text appended verbatim to this UPS's ups.conf stanza.
+
+      nut_ups_extra:
+        type: str
+        description: >
+          Raw text appended verbatim to ups.conf after all UPS stanzas.
+          Defaults to "maxretry = 3".
+
+      nut_upsd_extra:
+        type: str
+        description: >
+          Raw text appended verbatim to upsd.conf. Defaults to MAXAGE,
+          MAXCONN, and LISTEN directives for localhost IPv4 and IPv6.
+
+      # Deprecated variables — kept for backward compatibility
+      nut_user:
+        type: str
+        required: false
+        description: >
+          DEPRECATED. Legacy upsmon username. Migrate to nut_users instead.
+
+      nut_password:
+        type: str
+        required: false
+        description: >
+          DEPRECATED. Legacy upsmon password. Migrate to nut_users instead.
+
+      nut_role:
+        type: str
+        required: false
+        description: >
+          DEPRECATED. Legacy upsmon role. Migrate to nut_users instead.
+
+      nut_maxretry:
+        type: int
+        default: 3
+        description: >
+          DEPRECATED. Use nut_ups_extra to set maxretry in ups.conf.

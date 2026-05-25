@@ -8,12 +8,28 @@ exclude_paths:
   - .ansible/
 
 skip_list:
-  - "skip_this_tag"
-  - "git-latest"
-  - "var-naming"
-  - "package-latest"
+  - git-latest
+  - var-naming
+  - package-latest
 
 enable_list:
-  - fqcn-builtins
+  - fqcn[builtins]
+  - comparison-to-empty-string
+  - no-log[password]
+  - no-same-owner
+  - meta[incorrect]
+  - meta[no-info]
+  - meta[no-tags]
+  - meta[video-links]
+  - yaml[no-tabs]
+  - risky-file-permissions
+  - risky-shell-pipe
+
+warn_list:
+  - git-latest
+  - experimental
 
 use_default_rules: true
+
+# Enable checking of loop variable prefixes in roles
+loop_var_prefix: "{role_name}_"
