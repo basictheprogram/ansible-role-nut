@@ -1,0 +1,48 @@
+---
+- name: Converge
+  hosts: all
+  become: true
+
+  pre_tasks:
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
+        force_apt_get: true
+      changed_when: false
+      when: ansible_os_family == 'Debian'
+
+    - name: Update dnf cache
+      ansible.builtin.dnf:
+        update_cache: true
+      changed_when: false
+      when: ansible_os_family == 'RedHat'
+
+  roles:
+    - role: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') | basename }}"
+      vars:
+        # Disable service management — NUT services cannot run in Docker
+        # without physical UPS hardware attached to the container host.
+        nut_enable_service: false
+
+        # Write all configuration files so testinfra can assert on them.
+        nut_managed_config: true
+
+        nut_mode: standalone
+
+        nut_ups:
+          - name: testups
+            driver: dummy-ups
+            device: testups.dev
+            description: Molecule test UPS (no hardware required)
+
+        # Both services in nut_services so upsd.conf, upsd.users, and
+        # upsmon.conf are all added to nut_configuration_files.
+        nut_services:
+          - nut-server.service
+          - nut-monitor.service
+
+        nut_users:
+          - name: testmonitor
+            password: testpassword
+            role: primary

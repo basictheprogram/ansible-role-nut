@@ -149,8 +149,11 @@ commit. Stop and verify between items.
    enumerator path, then per-device services, then legacy `nut-driver.service`.
 7. **NUT service management** — `tasks/restart-nut.yml`: enables and restarts
    `nut_services` list via `handlers/main.yml`.
-8. **Molecule test scenarios** — not yet present; needs creating with
-   testinfra verifier, platform matrix matching `meta/main.yml`.
+8. **Molecule test scenarios** — `molecule/default/` created with a
+   6-platform matrix (Ubuntu jammy/noble/resolute, Debian bookworm/trixie,
+   EL 9). Arch Linux excluded — no geerlingguy image available.
+   testinfra test suite in `molecule/default/tests/`: `test_packages.py`,
+   `test_config.py`, `test_nut_system.py`. See `_template/molecule-testing.md`.
 
 ### Consumer side notes
 
