@@ -30,11 +30,9 @@ platforms:
     image: geerlingguy/docker-rockylinux9-ansible:latest
     pre_build_image: true
 
-  # NOTE: Arch Linux (meta/main.yml platforms: Archlinux, versions: [all])
-  # is excluded from this matrix — geerlingguy does not publish a
-  # docker-archlinux-ansible image. Community alternative:
-  # gliech/docker-archlinux-ansible (not officially maintained alongside
-  # geerlingguy images). Add manually if Arch coverage is required.
+  - name: el-10
+    image: geerlingguy/docker-rockylinux10-ansible:latest
+    pre_build_image: true
 
 provisioner:
   name: ansible

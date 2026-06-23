@@ -3,8 +3,7 @@ argument_specs:
   main:
     short_description: Install and configure Network UPS Tools (NUT)
     description: >
-      Installs and configures NUT on Debian, Arch Linux, and RedHat-based
-      systems. Manages nut.conf, ups.conf, upsd.conf, upsd.users, and
+      Installs and configures NUT on Debian and RedHat-based systems. Manages nut.conf, ups.conf, upsd.conf, upsd.users, and
       upsmon.conf from role variables. Handles driver and service lifecycle.
     author: Nicola Fontana
     options:
