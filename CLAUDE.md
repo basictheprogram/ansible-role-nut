@@ -5,7 +5,7 @@ by Nicola Fontana. This fork lives at
 [basictheprogram/ansible-role-nut](https://github.com/basictheprogram/ansible-role-nut).
 Bugs and pull requests go to the fork repo, not upstream.
 
-Installs and configures Network UPS Tools (NUT) on Debian, Arch Linux, and
+Installs and configures Network UPS Tools (NUT) on Debian and
 RedHat-based systems. The role manages all NUT configuration files
 (`nut.conf`, `ups.conf`, `upsd.conf`, `upsd.users`, `upsmon.conf`),
 installs the correct OS-specific packages, and handles driver and service
@@ -134,14 +134,14 @@ Work one section at a time. Each item = one focused session and one
 commit. Stop and verify between items.
 
 1. **OS variable loading** — `tasks/main.yml` `include_vars` block; vars live
-   in `vars/Debian.yml`, `vars/RedHat.yml`, `vars/Archlinux.yml`. Switch to
+   in `vars/Debian.yml`, `vars/RedHat.yml`. Switch to
    `first_found` pattern pointing at `vars/` (not `defaults/`).
 2. **Package installation** — `ansible.builtin.package` with `__nut_packages`
    from OS vars.
 3. **Configuration file templating** — five templates driven by
    `nut_configuration_files` list: `nut.conf`, `ups.conf`, `upsd.conf`,
    `upsd.users`, `upsmon.conf`. Gated by `nut_managed_config`.
-4. **Preflight assertions** — `tasks/preflight.yml` (not yet created): assert
+4. **Preflight assertions** — `tasks/preflight.yml`: assert
    Ansible ≥ 2.20, validate required UPS fields, validate user entries.
 5. **Optional notifycmd** — `ansible.builtin.copy` task for
    `nut_upsmon_notifycmd_content`; only fires when variable is defined.
@@ -151,13 +151,23 @@ commit. Stop and verify between items.
    `nut_services` list via `handlers/main.yml`.
 8. **Molecule test scenarios** — `molecule/default/` created with a
    6-platform matrix (Ubuntu jammy/noble/resolute, Debian bookworm/trixie,
-   EL 9). Arch Linux excluded — no geerlingguy image available.
-   testinfra test suite in `molecule/default/tests/`: `test_packages.py`,
+   EL 9). testinfra test suite in `molecule/default/tests/`: `test_packages.py`,
    `test_config.py`, `test_nut_system.py`. See `_template/molecule-testing.md`.
 
 ### Consumer side notes
 
-<!-- TODO: fill in consumer notes -->
+Use role `realtime.nut`. Minimum example:
+
+    - hosts: all
+      roles:
+        - role: realtime.nut
+          nut_ups:
+            - name: riello
+              driver: riello_usb
+              device: /dev/ups
+              description: iPlug 800
+
+Install from Galaxy: `ansible-galaxy role install realtime.nut`
 
 ---
 
