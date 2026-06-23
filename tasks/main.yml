@@ -9,7 +9,7 @@
 
 - name: "Define nut_packages."
   ansible.builtin.set_fact:
-    nut_packages: "{{ __nut_packages | list }}"
+    nut_packages: "{{ (__nut_packages | list) + nut_extra_packages }}"
   when: nut_packages is not defined
 
 - name: "Ensure NUT packages are installed."
@@ -47,6 +47,21 @@
   loop: "{{ nut_configuration_files }}"
   notify: "Restart nut"
   when: "nut_managed_config"
+
+- name: "Remove stale NUT configuration files."
+  ansible.builtin.file:
+    path: "{{ __nut_config_dir }}{{ item }}"
+    state: absent
+  loop: "{{ __nut_all_config_files | difference(nut_configuration_files) }}"
+  vars:
+    __nut_all_config_files:
+      - nut.conf
+      - ups.conf
+      - upsd.conf
+      - upsd.users
+      - upsmon.conf
+  when: nut_managed_config
+  notify: "Restart nut"
 
 - name: Install custom notifycmd script.
   ansible.builtin.copy:

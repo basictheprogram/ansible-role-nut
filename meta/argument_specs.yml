@@ -22,6 +22,14 @@ argument_specs:
           templates. Set to false to skip configuration file management
           entirely and handle /etc/nut/* yourself.
 
+      nut_extra_packages:
+        type: list
+        elements: str
+        default: []
+        description: >
+          Additional OS packages to install alongside the NUT packages,
+          e.g. bsd-mailx for a notify script that shells out to mail.
+
       nut_mode:
         type: str
         default: standalone

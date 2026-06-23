@@ -6,6 +6,10 @@ nut_enable_service: true
 # Any and all changes to /etc/nut/* will be your responsibility.
 nut_managed_config: true
 
+# Extra OS packages to install alongside the NUT packages, e.g. bsd-mailx
+# if you want to keep notify scripts simple.
+nut_extra_packages: []
+
 nut_mode: standalone
 nut_extra:
 nut_host: localhost
