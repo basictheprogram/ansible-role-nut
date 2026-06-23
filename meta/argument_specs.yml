@@ -129,6 +129,54 @@ argument_specs:
           directive. Defaults to a standard set of MINSUPPLIES, SHUTDOWNCMD,
           poll frequencies, and timing values.
 
+      nut_upsmon_monitors:
+        type: list
+        elements: dict
+        default: []
+        description: >
+          List of remote NUT servers for upsmon to monitor, independent of
+          any locally-driven UPS in nut_ups. Each entry writes its own
+          MONITOR directive in upsmon.conf, so a host can monitor any
+          number of remote servers, each with its own credentials, in
+          addition to or instead of a local UPS.
+        options:
+          name:
+            type: str
+            required: true
+            description: UPS name as exported by the remote upsd.
+          host:
+            type: str
+            required: true
+            description: Remote NUT server hostname or IP address.
+          port:
+            type: int
+            required: false
+            description: >
+              Remote NUT server port. Only needed if the server does not
+              use the NUT default port (3493).
+          user:
+            type: str
+            required: true
+            description: Username for authenticating to the remote upsd.
+          password:
+            type: str
+            required: true
+            description: >
+              Plain-text password for this remote NUT server. Keep this in
+              an Ansible Vault file; never commit it in clear text.
+          role:
+            type: str
+            required: false
+            description: >
+              Upsmon type field for this MONITOR line. Defaults to
+              nut_upsmon_role.
+          powervalue:
+            type: int
+            required: false
+            description: >
+              Power value for this MONITOR line. Defaults to
+              nut_powervalue.
+
       nut_upsmon_notifycmd:
         type: str
         required: false

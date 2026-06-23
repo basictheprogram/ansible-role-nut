@@ -46,3 +46,24 @@
           - name: testmonitor
             password: testpassword
             role: primary
+
+        # Remote NUT servers monitored in addition to the local testups
+        # UPS, exercising the multi-server MONITOR loop in upsmon.conf.j2.
+        # remoteups3 omits role/port to verify the nut_upsmon_role and
+        # nut_powervalue defaulting.
+        nut_upsmon_monitors:
+          - name: remoteups1
+            host: remote1.example.test
+            user: remoteuser1
+            password: remotepass1
+            role: secondary
+          - name: remoteups2
+            host: remote2.example.test
+            port: 3493
+            user: remoteuser2
+            password: remotepass2
+            role: secondary
+          - name: remoteups3
+            host: remote3.example.test
+            user: remoteuser3
+            password: remotepass3

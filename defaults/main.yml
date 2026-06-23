@@ -86,6 +86,20 @@ nut_upsmon_extra: |
   NOCOMMWARNTIME 300
   FINALDELAY 5
 
+# List of remote NUT servers for upsmon to monitor, independent of any
+# locally-driven UPS in nut_ups. Each entry writes its own MONITOR line in
+# upsmon.conf, so a host can monitor any number of remote servers (with
+# their own credentials) in addition to, or instead of, a local UPS.
+# nut_upsmon_monitors:
+#   - name: ups1               # UPS name as exported by the remote upsd
+#     host: synology1.lan      # remote NUT server hostname/IP
+#     user: monitor
+#     password: "{{ vault_synology1_monitor_password }}"
+#     role: secondary           # optional, defaults to nut_upsmon_role
+#     port: 3493                # optional, only needed if non-default
+#     powervalue: 1             # optional, defaults to nut_powervalue
+nut_upsmon_monitors: []
+
 # When set, NOTIFYCMD will be configured to this path
 # nut_upsmon_notifycmd:
 # When set, the content will be copied to the nut_upsmon_notifycmd path

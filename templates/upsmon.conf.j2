@@ -3,6 +3,9 @@
 {% for ups in nut_ups %}
 MONITOR {{ ups.name }}{% if nut_host %}@{{ nut_host }}{% endif %} {{ nut_powervalue }} {{ nut_upsmon_user }} {{ nut_upsmon_password }} {{ nut_upsmon_role }}
 {% endfor %}
+{% for monitor in nut_upsmon_monitors %}
+MONITOR {{ monitor.name }}@{{ monitor.host }}{% if monitor.port is defined %}:{{ monitor.port }}{% endif %} {{ monitor.powervalue | default(nut_powervalue) }} {{ monitor.user }} {{ monitor.password }} {{ monitor.role | default(nut_upsmon_role) }}
+{% endfor %}
 
 {% if nut_upsmon_notifycmd is defined %}
 NOTIFYCMD {{ nut_upsmon_notifycmd }}

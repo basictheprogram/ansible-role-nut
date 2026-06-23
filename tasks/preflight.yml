@@ -33,10 +33,28 @@
     fail_msg: >
       nut_users entry is missing required fields.
       Every entry must have name and password defined and non-empty.
-      Offending entry index: {{ nut_users_item.name | default('(unnamed)') }}
+      Offending entry name: {{ nut_users_item.name | default('(unnamed)') }}
     quiet: true
   loop: "{{ nut_users }}"
   loop_control:
     loop_var: nut_users_item
     label: "{{ nut_users_item.name | default('(unnamed)') }}"
+  no_log: true
+
+- name: Assert required fields on each nut_upsmon_monitors entry
+  ansible.builtin.assert:
+    that:
+      - nut_upsmon_monitors_item.name is defined and nut_upsmon_monitors_item.name | length > 0
+      - nut_upsmon_monitors_item.host is defined and nut_upsmon_monitors_item.host | length > 0
+      - nut_upsmon_monitors_item.user is defined and nut_upsmon_monitors_item.user | length > 0
+      - nut_upsmon_monitors_item.password is defined and nut_upsmon_monitors_item.password | length > 0
+    fail_msg: >
+      nut_upsmon_monitors entry is missing required fields.
+      Every entry must have name, host, user, and password defined and non-empty.
+      Offending entry name: {{ nut_upsmon_monitors_item.name | default('(unnamed)') }}
+    quiet: true
+  loop: "{{ nut_upsmon_monitors }}"
+  loop_control:
+    loop_var: nut_upsmon_monitors_item
+    label: "{{ nut_upsmon_monitors_item.name | default('(unnamed)') }}"
   no_log: true

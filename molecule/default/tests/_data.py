@@ -79,3 +79,31 @@ TEST_USER_NAME: str = "testmonitor"
 
 #: NUT host written to upsmon.conf MONITOR directive (nut_host default).
 TEST_NUT_HOST: str = "localhost"
+
+#: nut_upsmon_monitors fixture — remote NUT servers monitored in addition
+#: to the local testups UPS. remoteups3 omits "role" and "port" on purpose,
+#: to exercise the nut_upsmon_role/nut_powervalue defaulting in the
+#: upsmon.conf.j2 template.
+TEST_UPSMON_MONITORS: tuple[dict[str, str], ...] = (
+    {
+        "name": "remoteups1",
+        "host": "remote1.example.test",
+        "user": "remoteuser1",
+        "password": "remotepass1",
+        "role": "secondary",
+    },
+    {
+        "name": "remoteups2",
+        "host": "remote2.example.test",
+        "port": "3493",
+        "user": "remoteuser2",
+        "password": "remotepass2",
+        "role": "secondary",
+    },
+    {
+        "name": "remoteups3",
+        "host": "remote3.example.test",
+        "user": "remoteuser3",
+        "password": "remotepass3",
+    },
+)
